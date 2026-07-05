@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+build/
+*.tsbuildinfo
+
+# database
+data/*.db
+data/*.db-journal
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# env
+.env
+.env.*
+!.env.example
+
+# test artifacts
+apps/web/playwright-report/
+apps/web/test-results/
+coverage/
+
+# editor / os
+.DS_Store
+.vscode/
+.idea/

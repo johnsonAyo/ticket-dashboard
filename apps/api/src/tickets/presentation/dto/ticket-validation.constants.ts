@@ -1,0 +1,4 @@
+export const TITLE_MAX_LENGTH = 200;
+export const DESCRIPTION_MAX_LENGTH = 5000;
+export const CUSTOMER_NAME_MAX_LENGTH = 120;
+export const CUSTOMER_EMAIL_MAX_LENGTH = 254;

@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+apps/web/playwright-report
+apps/web/test-results
+apps/api/prisma/migrations
+package-lock.json
+pnpm-lock.yaml

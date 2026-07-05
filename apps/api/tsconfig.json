@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "declaration": false,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "strictPropertyInitialization": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["src/**/*.ts", "prisma/**/*.ts", "test/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
