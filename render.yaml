@@ -1,0 +1,40 @@
+# Render blueprint (optional deployment). Local setup remains the primary
+# reviewer path; this file documents a Render-ready configuration.
+#
+# The API stores its SQLite database on a mounted persistent disk so data
+# survives deploys and restarts. For stateless or multi-instance production
+# deployments, switch the datasource to PostgreSQL (see README).
+
+services:
+  - type: web
+    name: ticket-dashboard-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build -w @ticket/api
+    # migrate deploy is idempotent; run it before starting the server.
+    startCommand: npm run db:deploy -w @ticket/api && npm run start -w @ticket/api
+    healthCheckPath: /api/health
+    disk:
+      name: ticket-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        value: file:/var/data/app.db
+      - key: CORS_ORIGIN
+        sync: false # set to the deployed web app origin
+      - key: PORT
+        value: 3000
+
+  - type: web
+    name: ticket-dashboard-web
+    runtime: static
+    buildCommand: npm install && npm run build -w @ticket/web
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        sync: false # set to the deployed API origin + /api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
