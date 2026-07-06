@@ -1,38 +1,45 @@
 import type { Ticket } from '@ticket/shared';
 import { useNavigate, useParams } from 'react-router-dom';
+import { BackLink } from '../components/layout/BackLink';
 import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
 import { PriorityBadge } from '../components/tickets/PriorityBadge';
 import { StatusBadge } from '../components/tickets/StatusBadge';
 import { TicketStatusUpdater } from '../components/tickets/TicketStatusUpdater';
 import { TicketPriorityUpdater } from '../components/tickets/TicketPriorityUpdater';
-import { Modal } from '../components/ui/Modal';
 import { useTicketQuery } from '../hooks/use-tickets';
-import { ROUTES } from '../lib/constants';
 import { getErrorMessage } from '../lib/errors';
 import { formatDateTime } from '../lib/format';
 
+import { useConfirmDeleteTicket } from '../hooks/use-confirm-delete';
 import { useDeleteTicket } from '../hooks/use-delete-ticket';
+import { ROUTES } from '../lib/constants';
 
 export function TicketDetailPage() {
   const { id } = useParams();
   const ticketId = Number(id);
   const ticketQuery = useTicketQuery(ticketId);
   const deleteTicket = useDeleteTicket();
+  const confirmDelete = useConfirmDeleteTicket();
   const navigate = useNavigate();
 
-  const closeModal = () => navigate(ROUTES.tickets);
-
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this ticket?')) {
+    if (await confirmDelete()) {
       await deleteTicket.mutateAsync(ticketId);
-      closeModal();
+      navigate(ROUTES.tickets);
     }
   };
 
   return (
-    <Modal title={ticketQuery.data?.title ?? 'Ticket details'} onClose={closeModal}>
-      <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
+        <BackLink to={ROUTES.tickets}>All tickets</BackLink>
+        <h1 className="text-xl font-semibold text-slate-900">
+          {ticketQuery.data?.title ?? 'Ticket details'}
+        </h1>
+      </div>
+
+      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         {ticketQuery.isPending ? <LoadingState message="Loading ticket…" /> : null}
 
         {ticketQuery.isError ? (
@@ -50,7 +57,7 @@ export function TicketDetailPage() {
           />
         ) : null}
       </div>
-    </Modal>
+    </div>
   );
 }
 

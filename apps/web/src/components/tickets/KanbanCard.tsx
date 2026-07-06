@@ -1,15 +1,16 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { Ticket } from '@ticket/shared';
+import type { TicketListItem } from '@ticket/shared';
 import { Link } from 'react-router-dom';
 import { ticketDetailPath } from '../../lib/constants';
 import { formatDate } from '../../lib/format';
 import { PriorityBadge } from './PriorityBadge';
 import { Trash2 } from 'lucide-react';
+import { useConfirmDeleteTicket } from '../../hooks/use-confirm-delete';
 import { useDeleteTicket } from '../../hooks/use-delete-ticket';
 
 type KanbanCardProps = {
-  ticket: Ticket;
+  ticket: TicketListItem;
 };
 
 export function KanbanCard({ ticket }: KanbanCardProps) {
@@ -22,10 +23,11 @@ export function KanbanCard({ ticket }: KanbanCardProps) {
   };
 
   const deleteTicket = useDeleteTicket();
+  const confirmDelete = useConfirmDeleteTicket();
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm('Are you sure you want to delete this ticket?')) {
+    if (await confirmDelete()) {
       deleteTicket.mutate(ticket.id);
     }
   };
@@ -36,6 +38,8 @@ export function KanbanCard({ ticket }: KanbanCardProps) {
       style={style}
       {...listeners}
       {...attributes}
+      data-testid="kanban-card"
+      data-ticket-title={ticket.title}
       className={`group relative cursor-grab touch-none rounded-md border border-slate-200 bg-white p-3 shadow-sm ${
         isDragging ? 'opacity-30' : ''
       }`}

@@ -1,4 +1,10 @@
-import type { CreateTicketInput, Ticket, TicketFilters, UpdateTicketInput } from '@ticket/shared';
+import type {
+  CreateTicketInput,
+  Ticket,
+  TicketFilters,
+  UpdateTicketInput,
+  TicketListItem,
+} from '@ticket/shared';
 import { apiRequest } from './client';
 
 function toQueryString(filters: TicketFilters): string {
@@ -19,8 +25,8 @@ function toQueryString(filters: TicketFilters): string {
   return query ? `?${query}` : '';
 }
 
-export function fetchTickets(filters: TicketFilters): Promise<Ticket[]> {
-  return apiRequest<Ticket[]>(`/tickets${toQueryString(filters)}`);
+export function fetchTickets(filters: TicketFilters): Promise<TicketListItem[]> {
+  return apiRequest<TicketListItem[]>(`/tickets${toQueryString(filters)}`);
 }
 
 export function fetchTicket(ticketId: number): Promise<Ticket> {

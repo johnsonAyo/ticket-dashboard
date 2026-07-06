@@ -1,8 +1,8 @@
-import { TICKET_STATUSES, type Ticket, type TicketStatus } from '@ticket/shared';
+import { TICKET_STATUSES, type TicketListItem, type TicketStatus } from '@ticket/shared';
 import { STATUS_LABELS } from '../../lib/labels';
 
 type TicketSummaryStatsProps = {
-  tickets: Ticket[];
+  tickets: TicketListItem[];
 };
 
 export function TicketSummaryStats({ tickets }: TicketSummaryStatsProps) {
@@ -32,7 +32,7 @@ function StatCard({ label, value }: StatCardProps) {
   );
 }
 
-function countTicketsByStatus(tickets: Ticket[]): Record<TicketStatus, number> {
+function countTicketsByStatus(tickets: TicketListItem[]): Record<TicketStatus, number> {
   const counts = TICKET_STATUSES.reduce(
     (accumulator, status) => ({ ...accumulator, [status]: 0 }),
     {} as Record<TicketStatus, number>,

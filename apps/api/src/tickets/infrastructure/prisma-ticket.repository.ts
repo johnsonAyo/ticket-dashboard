@@ -5,10 +5,11 @@ import {
   type CreateTicketInput,
   type Ticket,
   type TicketFilters,
+  type TicketListItem,
 } from '@ticket/shared';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { TicketRepository } from '../domain/ticket.repository';
-import { toDomainTicket } from './ticket.mapper';
+import { toDomainTicket, toDomainTicketListItem } from './ticket.mapper';
 
 const PRISMA_RECORD_NOT_FOUND = 'P2025';
 
@@ -16,12 +17,20 @@ const PRISMA_RECORD_NOT_FOUND = 'P2025';
 export class PrismaTicketRepository implements TicketRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findMany(filters: TicketFilters): Promise<Ticket[]> {
+  async findMany(filters: TicketFilters): Promise<TicketListItem[]> {
     const rows = await this.prisma.ticket.findMany({
       where: { status: filters.status, priority: filters.priority },
       orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        customerName: true,
+        status: true,
+        priority: true,
+        createdAt: true,
+      },
     });
-    return rows.map(toDomainTicket);
+    return rows.map(toDomainTicketListItem);
   }
 
   async findById(id: number): Promise<Ticket | null> {
@@ -59,7 +68,7 @@ export class PrismaTicketRepository implements TicketRepository {
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === PRISMA_RECORD_NOT_FOUND
       ) {
-        return; // Already deleted
+        return;
       }
       throw error;
     }

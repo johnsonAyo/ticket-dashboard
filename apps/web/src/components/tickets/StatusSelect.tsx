@@ -9,7 +9,6 @@ type StatusSelectProps = {
   id?: string;
 };
 
-/** Accessible, keyboard-operable status control shared across list and detail. */
 export function StatusSelect({ value, onChange, label, disabled, id }: StatusSelectProps) {
   return (
     <select

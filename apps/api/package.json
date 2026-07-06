@@ -17,9 +17,6 @@
     "pretest": "cross-env DATABASE_URL=\"file:./test.db\" prisma db push --skip-generate",
     "test": "cross-env DATABASE_URL=\"file:./test.db\" jest --config ./test/jest-e2e.json --runInBand"
   },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
     "@nestjs/config": "^3.3.0",

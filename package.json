@@ -9,7 +9,7 @@
     "apps/*"
   ],
   "scripts": {
-    "postinstall": "npm run build -w @ticket/shared",
+    "postinstall": "npm run build -w @ticket/shared && npm run prisma:generate -w @ticket/api",
     "dev": "npm run dev -w apps/api & npm run dev -w apps/web",
     "dev:api": "npm run dev -w apps/api",
     "dev:web": "npm run dev -w apps/web",

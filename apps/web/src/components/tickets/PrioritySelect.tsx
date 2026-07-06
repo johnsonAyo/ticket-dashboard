@@ -9,7 +9,6 @@ type PrioritySelectProps = {
   id?: string;
 };
 
-/** Accessible, keyboard-operable priority control shared across list and detail. */
 export function PrioritySelect({ value, onChange, label, disabled, id }: PrioritySelectProps) {
   return (
     <select

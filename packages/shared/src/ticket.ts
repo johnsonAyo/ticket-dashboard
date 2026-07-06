@@ -18,6 +18,8 @@ export type Ticket = {
   updatedAt: string;
 };
 
+export type TicketListItem = Omit<Ticket, 'description' | 'customerEmail' | 'updatedAt'>;
+
 export type CreateTicketInput = {
   title: string;
   description: string;

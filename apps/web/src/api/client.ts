@@ -3,7 +3,6 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? DEFAULT_API_BASE_URL;
 
 const NO_CONTENT_STATUS = 204;
 
-/** Error carrying the API's HTTP status so the UI can react to it. */
 export class ApiError extends Error {
   constructor(
     public readonly statusCode: number,

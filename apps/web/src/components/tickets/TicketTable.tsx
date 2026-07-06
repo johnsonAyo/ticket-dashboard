@@ -1,5 +1,6 @@
-import type { Ticket, TicketFilters } from '@ticket/shared';
+import type { TicketFilters, TicketListItem } from '@ticket/shared';
 import { Trash2, ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react';
+import { useConfirmDeleteTicket } from '../../hooks/use-confirm-delete';
 import { useDeleteTicket } from '../../hooks/use-delete-ticket';
 import { Link } from 'react-router-dom';
 import { ticketDetailPath } from '../../lib/constants';
@@ -8,7 +9,7 @@ import { PriorityBadge } from './PriorityBadge';
 import { TicketStatusUpdater } from './TicketStatusUpdater';
 
 type TicketTableProps = {
-  tickets: Ticket[];
+  tickets: TicketListItem[];
   sortBy?: TicketFilters['sortBy'];
   onSortChange?: (sortBy?: TicketFilters['sortBy']) => void;
 };
@@ -165,9 +166,10 @@ export function TicketTable({ tickets, sortBy, onSortChange }: TicketTableProps)
 
 function DeleteButton({ ticketId }: { ticketId: number }) {
   const deleteTicket = useDeleteTicket();
+  const confirmDelete = useConfirmDeleteTicket();
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this ticket?')) {
+  const handleDelete = async () => {
+    if (await confirmDelete()) {
       deleteTicket.mutate(ticketId);
     }
   };

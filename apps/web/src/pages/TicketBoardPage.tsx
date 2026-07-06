@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { useState, useEffect } from 'react';
-import type { Ticket } from '@ticket/shared';
+import type { TicketListItem } from '@ticket/shared';
 import { TICKET_STATUSES, isTicketStatus } from '@ticket/shared';
 import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
@@ -36,10 +36,9 @@ export function TicketBoardPage() {
     useSensor(PointerSensor, { activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE } }),
   );
 
-  const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
-  const [localTickets, setLocalTickets] = useState<Ticket[]>([]);
+  const [activeTicket, setActiveTicket] = useState<TicketListItem | null>(null);
+  const [localTickets, setLocalTickets] = useState<TicketListItem[]>([]);
 
-  // Sync local state when the query data changes
   useEffect(() => {
     if (ticketsQuery.data) {
       setLocalTickets(ticketsQuery.data);
@@ -61,7 +60,6 @@ export function TicketBoardPage() {
     const activeId = Number(active.id);
     const overId = over.id;
 
-    // Over can be a column (status string) or another ticket (number ID)
     const overIsStatus = isTicketStatus(String(overId));
 
     setLocalTickets((prev) => {
@@ -81,14 +79,12 @@ export function TicketBoardPage() {
         }
       }
 
-      // If moving to a different status, instantly update the status locally
       if (activeItem.status !== newStatus) {
         const next = [...prev];
         next[activeIndex] = { ...activeItem, status: newStatus };
         return arrayMove(next, activeIndex, overIndex !== -1 ? overIndex : next.length - 1);
       }
 
-      // If reordering within the same status
       if (overIndex !== -1 && activeIndex !== overIndex) {
         return arrayMove(prev, activeIndex, overIndex);
       }
@@ -106,7 +102,6 @@ export function TicketBoardPage() {
     const ticketId = Number(active.id);
     const draggedTicket = ticketsQuery.data?.find((ticket) => ticket.id === ticketId);
 
-    // Determine the status we dropped into (could be an item or a column)
     let nextStatus = '';
     if (isTicketStatus(String(over.id))) {
       nextStatus = String(over.id);

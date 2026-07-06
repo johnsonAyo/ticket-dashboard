@@ -9,10 +9,6 @@ type UpdateTicketVariables = {
   data: UpdateTicketInput;
 };
 
-/**
- * Pessimistic update mutation: the server is the source of truth, so we only
- * invalidate ticket queries after the API confirms the change.
- */
 export function useUpdateTicket() {
   const queryClient = useQueryClient();
 

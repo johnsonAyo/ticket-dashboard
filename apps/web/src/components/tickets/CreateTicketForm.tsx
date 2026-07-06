@@ -34,9 +34,7 @@ export function CreateTicketForm({ onCreated, onCancel }: CreateTicketFormProps)
     try {
       const created = await createTicket.mutateAsync(values);
       onCreated(created);
-    } catch {
-      // Failure is surfaced via the createTicket.isError banner below.
-    }
+    } catch {}
   });
 
   return (

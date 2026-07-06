@@ -8,10 +8,6 @@ type TicketStatusUpdaterProps = {
   label?: string;
 };
 
-/**
- * Optimistically updates a ticket's status when a new value is selected.
- * Falls back to the server state if the mutation fails.
- */
 export function TicketStatusUpdater({ ticketId, status, label }: TicketStatusUpdaterProps) {
   const updateTicket = useUpdateTicket();
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { TicketFilters } from '@ticket/shared';
-import { Link, Outlet } from 'react-router-dom';
 import { EmptyState } from '../components/feedback/EmptyState';
 import { ErrorState } from '../components/feedback/ErrorState';
 import { LoadingState } from '../components/feedback/LoadingState';
@@ -17,21 +17,23 @@ const PRIMARY_ACTION_CLASSES =
 export function TicketListPage() {
   const [filters, setFilters] = useState<TicketFilters>({});
   const ticketsQuery = useTicketsQuery(filters);
-  const tickets = ticketsQuery.data;
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">Tickets</h1>
-          <p className="text-sm text-slate-500">Track and update customer support tickets.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Manage and track all customer support requests.
+          </p>
         </div>
         <Link to={ROUTES.newTicket} className={PRIMARY_ACTION_CLASSES}>
           New ticket
         </Link>
       </div>
 
-      {tickets ? <TicketSummaryStats tickets={tickets} /> : null}
+      {ticketsQuery.data ? <TicketSummaryStats tickets={ticketsQuery.data} /> : null}
+
       <TicketFilterBar filters={filters} onChange={setFilters} />
 
       {ticketsQuery.isPending ? <LoadingState message="Loading tickets…" /> : null}
@@ -43,28 +45,25 @@ export function TicketListPage() {
         />
       ) : null}
 
-      {tickets && tickets.length === 0 ? (
-        <EmptyState
-          title="No tickets match these filters"
-          description="Try clearing the filters or create a new ticket."
-          action={
-            <Link to={ROUTES.newTicket} className={PRIMARY_ACTION_CLASSES}>
-              New ticket
-            </Link>
-          }
-        />
+      {ticketsQuery.isSuccess ? (
+        ticketsQuery.data.length === 0 ? (
+          <EmptyState
+            title="No tickets match these filters"
+            description="Try clearing the filters or create a new ticket."
+            action={
+              <Link to={ROUTES.newTicket} className={PRIMARY_ACTION_CLASSES}>
+                New ticket
+              </Link>
+            }
+          />
+        ) : (
+          <TicketTable
+            tickets={ticketsQuery.data}
+            sortBy={filters.sortBy}
+            onSortChange={(sortBy) => setFilters({ ...filters, sortBy })}
+          />
+        )
       ) : null}
-
-      {tickets && tickets.length > 0 ? (
-        <TicketTable
-          tickets={tickets}
-          sortBy={filters.sortBy}
-          onSortChange={(sortBy) => setFilters({ ...filters, sortBy })}
-        />
-      ) : null}
-
-      {/* Renders the create-ticket drawer for the nested /tickets/new route. */}
-      <Outlet />
     </div>
   );
 }

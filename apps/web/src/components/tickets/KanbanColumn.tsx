@@ -1,12 +1,13 @@
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import type { Ticket, TicketStatus } from '@ticket/shared';
+import type { TicketListItem, TicketStatus } from '@ticket/shared';
 import { STATUS_LABELS } from '../../lib/labels';
 import { KanbanCard } from './KanbanCard';
+import { EmptyState } from '../feedback/EmptyState';
 
 type KanbanColumnProps = {
   status: TicketStatus;
-  tickets: Ticket[];
+  tickets: TicketListItem[];
 };
 
 export function KanbanColumn({ status, tickets }: KanbanColumnProps) {
@@ -26,12 +27,16 @@ export function KanbanColumn({ status, tickets }: KanbanColumnProps) {
           {tickets.length}
         </span>
       </header>
-      <div className="flex flex-col gap-3">
-        <SortableContext items={tickets.map((t) => t.id)} strategy={verticalListSortingStrategy}>
-          {tickets.map((ticket) => (
-            <KanbanCard key={ticket.id} ticket={ticket} />
-          ))}
-        </SortableContext>
+      <div className="flex h-full flex-col gap-3">
+        {tickets.length === 0 ? (
+          <EmptyState title="No tickets" />
+        ) : (
+          <SortableContext items={tickets.map((t) => t.id)} strategy={verticalListSortingStrategy}>
+            {tickets.map((ticket) => (
+              <KanbanCard key={ticket.id} ticket={ticket} />
+            ))}
+          </SortableContext>
+        )}
       </div>
     </section>
   );

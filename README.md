@@ -1,6 +1,6 @@
 # Support Ticket Dashboard
 
-A compact, production-minded support ticket dashboard: a React frontend, a
+A support ticket dashboard: a React frontend, a
 NestJS REST API, SQLite persistence via Prisma, automated tests, and API
 documentation. Built as a full-stack assessment with an emphasis on dependable
 core flows, clear boundaries, and an easy reviewer setup.
@@ -12,7 +12,7 @@ core flows, clear boundaries, and an easy reviewer setup.
 - **Create ticket** in a right-side **drawer** with required-field and email
   validation; new tickets start as `open`.
 - **Ticket details** page with full information and a status control.
-- **Status updates** from the list and detail views, persisted to the database.
+- **Status and priority updates**, plus **ticket deletion**, from the list and detail views, persisted to the database.
 - **Filtering** by status and priority.
 - **Kanban board** (`dnd-kit`) for drag-and-drop status changes, reusing the
   same status-update API as the accessible controls.
@@ -57,7 +57,6 @@ ticket-dashboard/
   packages/
     shared/         framework-neutral ticket types + constants
   data/             SQLite database (git-ignored)
-  render.yaml       optional Render deployment blueprint
 ```
 
 ## Prerequisites
@@ -66,14 +65,33 @@ ticket-dashboard/
 
 ## Getting started
 
+### Recommended: Run with Docker
+
+A single-container dev setup is provided for a one-command start. This builds the workspaces, sets up and seeds the SQLite database on the mounted `./data` volume, and runs both the API (`:3000`) and web app (`:5173`).
+
+```bash
+docker compose up --build
+```
+
+Then open http://localhost:5173. The API is at http://localhost:3000/api and
+Swagger docs are at http://localhost:3000/api/docs.
+
+### Alternative: Manual setup
+
+If you prefer to run the apps locally without Docker:
+
 ```bash
 # 1. Install all workspaces (also builds the shared package)
 npm install
 
-# 2. Set up the database: generate the client, apply migrations, seed sample data
+# 2. Copy the environment variables
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
+
+# 3. Set up the database: generate the client, apply migrations, seed sample data
 npm run db:setup
 
-# 3. Run the API (:3000) and web app (:5173) together
+# 4. Run the API (:3000) and web app (:5173) together
 npm run dev
 ```
 
@@ -82,25 +100,7 @@ Swagger docs are at http://localhost:3000/api/docs.
 
 To run the apps separately: `npm run dev:api` and `npm run dev:web`.
 
-### Run with Docker (optional)
-
-A single-container dev setup is provided for a one-command start:
-
-```bash
-docker compose up --build
-```
-
-This builds the workspaces, sets up and seeds the SQLite database on the mounted
-`./data` volume, and runs both the API (`:3000`) and web app (`:5173`).
-
 ### Environment variables
-
-Copy the examples and adjust if needed (defaults work out of the box):
-
-```bash
-cp apps/api/.env.example apps/api/.env
-cp apps/web/.env.example apps/web/.env
-```
 
 | Variable            | App | Default                     | Purpose                                     |
 | ------------------- | --- | --------------------------- | ------------------------------------------- |
@@ -115,19 +115,20 @@ cp apps/web/.env.example apps/web/.env
 - `npm run db:setup` runs generate + `migrate deploy` + seed.
 - `npm run db:seed` re-seeds sample tickets (it resets the tickets table first).
 - The SQLite file path is configurable via `DATABASE_URL` for both local use and
-  a Render persistent disk (e.g. `file:/var/data/app.db`).
+  a mounted persistent disk in production (e.g. `file:/var/data/app.db`).
 
 ## API
 
 Base path: `/api`.
 
-| Method | Path           | Description                                         |
-| ------ | -------------- | --------------------------------------------------- |
-| GET    | `/tickets`     | List tickets; optional `?status=&priority=`         |
-| GET    | `/tickets/:id` | Get one ticket (`404` if missing)                   |
-| POST   | `/tickets`     | Create a ticket (`201`; status forced `open`)       |
-| PATCH  | `/tickets/:id` | Update ticket status (`400` invalid, `404` missing) |
-| GET    | `/health`      | Health check                                        |
+| Method | Path           | Description                                                     |
+| ------ | -------------- | --------------------------------------------------------------- |
+| GET    | `/tickets`     | List tickets; optional `?status=&priority=`                     |
+| GET    | `/tickets/:id` | Get one ticket (`404` if missing)                               |
+| POST   | `/tickets`     | Create a ticket (`201`; status forced `open`)                   |
+| PATCH  | `/tickets/:id` | Update ticket status or priority (`400` invalid, `404` missing) |
+| DELETE | `/tickets/:id` | Delete a ticket (`404` if missing)                              |
+| GET    | `/health`      | Health check                                                    |
 
 Errors use a consistent shape: `{ "statusCode", "error", "message" }`, where
 `message` may be an array of validation messages. Statuses are `open`,
@@ -168,17 +169,18 @@ npm run test:e2e
 npm run build
 ```
 
-## Deployment (optional)
+## Continuous integration
 
-`render.yaml` is a ready-to-use Render blueprint: the API runs as a web service
-with a mounted persistent disk for the SQLite file, and the web app deploys as a
-static site pointed at the API via `VITE_API_BASE_URL`. Local setup remains the
-primary reviewer path.
+`.github/workflows/ci.yml` runs on every push and pull request to `main`:
+
+1. **quality** — `format:check`, `lint`, `typecheck`, `build`, and the API tests.
+2. **e2e** — seeds an isolated SQLite database and runs the Playwright suite
+   (which boots the API and web servers itself).
 
 ## Assumptions & trade-offs
 
 - **SQLite via Prisma** keeps reviewer setup trivial and is explicitly accepted
-  by the brief. It works on Render with a persistent disk, but is not suited to
+  by the brief. It works with a mounted persistent disk, but is not suited to
   stateless, serverless, or multi-instance deployments — PostgreSQL is the
   production upgrade, and the repository port keeps that swap contained to the
   infrastructure layer.
@@ -194,6 +196,19 @@ primary reviewer path.
   validation uses `class-validator` (for Swagger) and the frontend uses Zod
   locally for forms.
 - **No authentication**: out of scope per the brief (see below).
+
+## Future work
+
+- **Two-pane master-detail view.** Detail and create are dedicated routes/pages
+  (per the brief). A production support tool (Zendesk, Intercom, Front) would
+  more likely use a master-detail layout — the ticket list stays on the left and
+  the selected ticket opens in a right-hand pane, keeping list context. It was a
+  deliberate choice to ship the simpler dedicated pages here and keep scope tight
+  to the requirements; the two-pane layout is the direction I'd take next.
+- **Auth and roles.** Out of scope per the brief; agent vs. admin permissions
+  would be the first addition for real use.
+- **Richer list controls.** Server-side pagination once ticket volume grows, plus
+  saved filter views.
 
 ## Production readiness
 

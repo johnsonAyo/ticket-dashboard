@@ -12,11 +12,12 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import type { Ticket } from '@ticket/shared';
+import type { Ticket, TicketListItem } from '@ticket/shared';
 import { TicketsService } from '../application/tickets.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { TicketQueryDto } from './dto/ticket-query.dto';
 import { TicketResponseDto } from './dto/ticket-response.dto';
+import { TicketListItemResponseDto } from './dto/ticket-list-response.dto';
 import { UpdateTicketDto } from './dto/update-ticket.dto';
 
 @ApiTags('tickets')
@@ -25,8 +26,8 @@ export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Get()
-  @ApiOkResponse({ type: TicketResponseDto, isArray: true })
-  findMany(@Query() filters: TicketQueryDto): Promise<Ticket[]> {
+  @ApiOkResponse({ type: TicketListItemResponseDto, isArray: true })
+  findMany(@Query() filters: TicketQueryDto): Promise<TicketListItem[]> {
     return this.ticketsService.findMany(filters);
   }
 

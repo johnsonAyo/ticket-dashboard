@@ -8,10 +8,6 @@ type TicketPriorityUpdaterProps = {
   label?: string;
 };
 
-/**
- * Optimistically updates a ticket's priority when a new value is selected.
- * Falls back to the server state if the mutation fails.
- */
 export function TicketPriorityUpdater({ ticketId, priority, label }: TicketPriorityUpdaterProps) {
   const updateTicket = useUpdateTicket();
 

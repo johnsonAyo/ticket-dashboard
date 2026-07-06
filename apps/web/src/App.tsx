@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
-import { CreateTicketDrawer } from './components/tickets/CreateTicketDrawer';
 import { ROUTES } from './lib/constants';
+import { CreateTicketPage } from './pages/CreateTicketPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { TicketBoardPage } from './pages/TicketBoardPage';
 import { TicketDetailPage } from './pages/TicketDetailPage';
@@ -12,12 +12,10 @@ export function App() {
     <Routes>
       <Route element={<AppLayout />}>
         <Route index element={<Navigate to={ROUTES.tickets} replace />} />
-        <Route path={ROUTES.tickets} element={<TicketListPage />}>
-          {/* The create form opens as a drawer overlaying the list. */}
-          <Route path="new" element={<CreateTicketDrawer />} />
-          <Route path=":id" element={<TicketDetailPage />} />
-        </Route>
+        <Route path={ROUTES.tickets} element={<TicketListPage />} />
+        <Route path={ROUTES.newTicket} element={<CreateTicketPage />} />
         <Route path={ROUTES.board} element={<TicketBoardPage />} />
+        <Route path={ROUTES.ticketDetail} element={<TicketDetailPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { CreateTicketInput, Ticket, TicketFilters } from '@ticket/shared';
+import type { CreateTicketInput, Ticket, TicketFilters, TicketListItem } from '@ticket/shared';
 import { TicketNotFoundError } from '../domain/ticket-not-found.error';
 import { TICKET_REPOSITORY, type TicketRepository } from '../domain/ticket.repository';
 
@@ -7,7 +7,7 @@ import { TICKET_REPOSITORY, type TicketRepository } from '../domain/ticket.repos
 export class TicketsService {
   constructor(@Inject(TICKET_REPOSITORY) private readonly ticketRepository: TicketRepository) {}
 
-  findMany(filters: TicketFilters): Promise<Ticket[]> {
+  findMany(filters: TicketFilters): Promise<TicketListItem[]> {
     return this.ticketRepository.findMany(filters);
   }
 
